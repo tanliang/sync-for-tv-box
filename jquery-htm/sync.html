@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+<title>sync text</title>
+<meta name="description" content="By using qrcode or input link to synchronize text between two devices with browser, such as phone, computer, tv box etc. - without telegram, wechat or other app" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+<style>
+html { font-size: calc(1em + 1vw); }
+</style>
+<script src="https://cdn.jsdelivr.net/gh/jquery/jquery@3.5.1/dist/jquery.min.js"></script>
+</head><body class="bg-dark">
+<div class="container">
+<div class="card border-0">
+  <div class="card-body">
+    <form id="sync">
+    <p>
+      <button id="fetch" class="btn btn-success">FETCH</button>
+      <a href="" id="open-link" class="btn btn-primary sr-only">LINK</a>
+      <small id="toast" class="card-text text-danger"></small>
+    </p>
+      <div class="form-group">
+        <textarea class="form-control" id="link" placeholder="max 1024 characters" name="link" rows="3" maxLength=1024></textarea>
+      </div>
+    <p>
+      <button id="submit" class="btn btn-primary" type="button">SUBMIT</button>
+    </p>
+    </form>
+    <p>
+      Incase of problem, please <a href="/index.html">RESCAN QRCODE</a> or <a href="mailto:?subject=feedback">SEND EMAIL</a>
+    </p>
+  </div>
+</div>
+</div>
+
+<script>
+  var base_url = "http://192.168.50.51:9501";
+  $( document ).ready(function() {
+    $("#link").focus(function() {
+      $("#toast").fadeOut();
+    });
+    var id = getUrlParam("id");
+    loadData(id);
+    console.log(id);
+
+    $("#fetch").click(function(event) {
+        event.preventDefault();
+        loadData(id);
+    });
+    $("#submit").click(function(event) {
+        event.preventDefault();
+        submit(id);
+    });
+  });
+    function getUrlParam(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+        var r = window.location.search.substr(1).match(reg);  //匹配目标参数
+        if (r != null) return unescape(r[2]); return null; //返回参数值
+    }
+  function loadData(id)
+  {
+    if (!id) {
+        alert('invalid id');
+        return;
+    }
+    $.ajax({
+        type: 'POST',
+        url: base_url+"/sync",
+        data: JSON.stringify({
+            jsonrpc: "2.0",
+            method: "index",
+            params: {"id": id},
+            id: "1"
+        }),
+        success: function(res){
+            console.log(res);
+            $("#link").val(res.text);
+            parseLink();
+        },
+        dataType: "json",
+        contentType: "application/json",
+        error: function(err){
+            console.log(err)
+        }
+    });
+
+  }
+
+  function parseLink() {
+    var link = $("#link").val();
+    var re = /[a-z]+:\/\/[-A-Za-z0-9+&@#\/%?=~_|!:,.;]+[-A-Za-z0-9+&@#\/%=~_|]/i;
+    var arr = link.match(re);
+    if (arr != undefined && arr.length > 0) {
+      var href = arr[0];
+      $("#open-link").attr("href", href);
+      $("#open-link").addClass("show").removeClass("sr-only");
+    }
+  }
+
+  function submit(id) {
+    $("#submit").attr('disabled',"true");
+    parseLink();
+    $.ajax({
+        type: 'POST',
+        url: base_url+"/sync",
+        data: JSON.stringify({
+            jsonrpc: "2.0",
+            method: "index",
+            params: {"id": id, "text": $("#link").val()},
+            id: "1"
+        }),
+        success: function (res) {
+          if (res.success != 0) {
+            $("#toast").text("DONE");
+            $("#toast").fadeIn();
+          }
+        },
+        error : function() {
+            $("#toast").text("failed.");
+            $("#toast").fadeIn().delay(3000).fadeOut();
+        },
+        complete: function (XMLHttpRequest, textStatus) {
+          $("#submit").removeAttr("disabled");
+        },
+        dataType: "json",
+        contentType: "application/json"
+    });
+  }
+</script>
+
+
+
+</body>
+</html>

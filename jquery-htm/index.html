@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+<title>sync for tv box</title>
+<meta name="description" content="By using qrcode or input link to synchronize text between two devices with browser, such as phone, computer, tv box etc. - without telegram, wechat or other app" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+<style>
+html { font-size: calc(1em + 1vw); }
+</style>
+<script src="https://cdn.jsdelivr.net/gh/jquery/jquery@3.5.1/dist/jquery.min.js"></script>
+</head><body>
+<div class="container">
+  <p>
+  <h5 id="short" class="text-info text-center">sync for TV box
+  </h5> 
+  </p>
+  <p id="qrcode" class="text-center">
+  </p>
+
+  <h5 id="sec" class="text-info text-center">15
+  </h5> 
+  <div id="loading" class="text-center sr-only">
+    <div class="spinner-border spinner-border-sm text-primary" role="status">
+      <span class="sr-only">Loading...</span>
+    </div>
+  </div></div>
+<script>
+  var base_url = "http://192.168.50.51:9501";
+  var sync = window.location.protocol+"//"+window.location.host+'/sync.html?id=';
+  console.log(sync);
+function reloadPage(id)
+{
+  var loading = false;
+  var timer = setInterval(function(){
+    var wait = $("#sec").html();
+    if (wait > 1) {
+      wait--;
+      $("#sec").html(wait);
+    } else if (loading == false) {
+      loading = true;
+      $("#sec").addClass("sr-only").removeClass("show");
+      $("#loading").addClass("show").removeClass("sr-only");
+
+      $.ajax({
+          type: 'POST',
+          url: base_url+"/test",
+          data: JSON.stringify({
+              jsonrpc: "2.0",
+              method: "index",
+              params: {"id": id},
+              id: "2"
+          }),
+          success: function(res){
+            if (res.success != 0) {
+              clearInterval(timer);
+              location.href = sync+id;
+            }
+          },
+          complete: function (XMLHttpRequest, textStatus) {
+            loading = false;
+            $("#sec").html("15");
+            $("#loading").addClass("sr-only").removeClass("show");
+            $("#sec").addClass("show").removeClass("sr-only");
+          },
+          dataType: "json",
+          contentType: "application/json",
+          error: function(err){
+            console.log(err)
+          }
+      });
+    }
+　}, 1000);
+}
+</script><script src="https://cdn.jsdelivr.net/npm/jquery-qrcode2@0.17.0/dist/jquery-qrcode.min.js"></script>
+<script>
+  $.ajax({
+      type: 'POST',
+      url: base_url,
+      data: JSON.stringify({
+          jsonrpc: "2.0",
+          method: "index",
+          params: {},
+          id: "1"
+      }),
+      success: function(res){
+          console.log(res);
+          renderQrc(res.id);
+          reloadPage(res.id);
+      },
+      dataType: "json",
+      contentType: "application/json",
+      error: function(err){
+        console.log(err)
+      }
+  });
+
+function renderQrc(id)
+{
+  var url = sync+id;
+  $("#short").html(url);
+  jQuery('#qrcode').qrcode({
+    // render method: 'canvas', 'image' or 'div'
+    render: 'canvas',
+ 
+    // version range somewhere in 1 .. 40
+    minVersion: 1,
+    maxVersion: 40,
+ 
+    // error correction level: 'L', 'M', 'Q' or 'H'
+    ecLevel: 'Q',
+ 
+    // offset in pixel if drawn onto existing canvas
+    left: 0,
+    top: 0,
+ 
+    // size in pixel
+    size: 320,
+ 
+    // code color or image element
+    fill: '#000',
+ 
+    // background color or image element, null for transparent background
+    background: null,
+ 
+    // content
+    text: url,
+ 
+    // corner radius relative to module width: 0.0 .. 0.5
+    radius: 0,
+ 
+    // quiet zone in modules
+    quiet: 0,
+ 
+    // modes
+    // 0: normal
+    // 1: label strip
+    // 2: label box
+    // 3: image strip
+    // 4: image box
+    mode: 2,
+ 
+    mSize: 0.1,
+    mPosX: 0.5,
+    mPosY: 0.5,
+ 
+    label: 'QRC SYNC',
+    fontname: 'sans',
+    fontcolor: '#f28500',
+ 
+    image: null
+  });
+}
+</script>
+
+</body>
+</html>
