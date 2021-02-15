@@ -6,8 +6,12 @@ sudo docker run --restart=always -d --name myRedis --network myNetwork --ip 172.
 
 sudo docker run -d --name mySql --network myNetwork --ip 172.18.0.13 -e MYSQL_ROOT_PASSWORD=1234567 -p 3306:3306 mysql:5.7
 
-sudo docker run --restart=always -d --name hyperf -v /home/tanliang/sync-for-tv-box:/data/project --network myNetwork --ip 172.18.0.15 -p 9501:9501 -it --privileged -u root --entrypoint /bin/sh hyperf/hyperf:7.4-alpine-v3.11-swoole
+本地环境
+sudo docker run -d --name hyperf -v /home/tanliang/Documents/php/9777:/data/project --network myNetwork --ip 172.18.0.15 -p 9501:9501 -it --privileged -u root --entrypoint /bin/sh hyperf/hyperf:7.4-alpine-v3.11-swoole
+
+正式部署
+cd /home/tanliang/sync-for-tv-box/json-api && sudo docker build -t sftb:1.0 .
+sudo docker run --restart=always -d --name hyperf --network myNetwork --ip 172.18.0.15 -p 9501:9501 sftb:1.0
 
 docker run -d --log-opt max-size=1k --log-opt max-file=3 --name tlNginx --network myNetwork --ip 172.18.0.11 -p 8081:80 -v /home/tanliang/Documents:/usr/share/nginx nginx
-
 docker cp default.conf tlNginx:/etc/nginx/conf.d/default.conf
