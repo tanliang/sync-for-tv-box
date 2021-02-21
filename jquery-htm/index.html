@@ -13,7 +13,7 @@ html { font-size: calc(1em + 1vw); }
 <div class="container">
   <p>
   <h5 id="short" class="text-info text-center">Loading ...
-  </h5> 
+  </h5>
   </p>
   <p id="qrcode" class="text-center">
   </p>
@@ -29,7 +29,7 @@ html { font-size: calc(1em + 1vw); }
   // var base_url = "http://192.168.50.51:9501";
   var base_url = "http://45.32.109.237:9501";
   var sync = window.location.protocol+"//"+window.location.host+'/sync.html?id=';
-  console.log(sync);
+  // console.log(sync);
 function reloadPage(id)
 {
   var loading = false;
@@ -85,7 +85,7 @@ function reloadPage(id)
           id: "1"
       }),
       success: function(res){
-          console.log(res);
+          // console.log(res);
           renderQrc(res.id);
           reloadPage(res.id);
       },
@@ -99,7 +99,7 @@ function reloadPage(id)
 function renderQrc(id)
 {
   var url = sync+id;
-  $("#short").html(url);
+  $("#short").html("<a href='"+url+"'>"+url+"</a>");
   jQuery('#qrcode').qrcode({
     // render method: 'canvas', 'image' or 'div'
     render: 'canvas',
