@@ -17,13 +17,13 @@ html { font-size: calc(1em + 1vw); }
     <p>
       <button id="fetch" class="btn btn-success">FETCH</button>
       <a href="" id="open-link" class="btn btn-primary sr-only">LINK</a>
-      <small id="toast" class="card-text text-danger"></small>
     </p>
       <div class="form-group">
         <textarea class="form-control" id="link" placeholder="max 1024 characters" name="link" rows="3" maxLength=1024></textarea>
       </div>
     <p>
       <button id="submit" class="btn btn-primary" type="button">SUBMIT</button>
+      <small id="toast" class="card-text text-danger"></small>
     </p>
     </form>
     <p id="qrcode" class="text-center">
@@ -120,7 +120,7 @@ html { font-size: calc(1em + 1vw); }
         }),
         success: function (res) {
           if (res.success != 0) {
-            $("#toast").text("DONE");
+            $("#toast").text("SUBMIT ok, you may FETCH on the other side.");
             $("#toast").fadeIn();
           }
         },
