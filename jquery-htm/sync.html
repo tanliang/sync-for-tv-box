@@ -45,7 +45,7 @@ html { font-size: calc(1em + 1vw); }
     });
     var id = getUrlParam("id");
     loadData(id);
-    console.log(id);
+    // console.log(id);
 
     $("#fetch").click(function(event) {
         event.preventDefault();
@@ -72,6 +72,9 @@ html { font-size: calc(1em + 1vw); }
         alert('invalid id');
         return;
     }
+    $("#fetch").attr('disabled',"true");
+    $("#fetch").html("FETCHing data, please wait.");
+    // alert(true);
     $.ajax({
         type: 'POST',
         url: base_url+"/sync",
@@ -85,6 +88,10 @@ html { font-size: calc(1em + 1vw); }
             console.log(res);
             $("#link").val(res.text);
             parseLink();
+        },
+        complete: function (XMLHttpRequest, textStatus) {
+          $("#fetch").removeAttr("disabled");
+          $("#fetch").html("FETCH");
         },
         dataType: "json",
         contentType: "application/json",
